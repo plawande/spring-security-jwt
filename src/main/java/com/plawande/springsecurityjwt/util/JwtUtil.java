@@ -64,5 +64,3 @@ public class JwtUtil {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
-
-//https://auth0.com/docs/tokens/json-web-tokens/json-web-token-claims
