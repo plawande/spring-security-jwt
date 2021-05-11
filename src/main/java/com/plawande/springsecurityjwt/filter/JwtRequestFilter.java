@@ -2,6 +2,7 @@ package com.plawande.springsecurityjwt.filter;
 
 import com.plawande.springsecurityjwt.service.MyUserDetailsService;
 import com.plawande.springsecurityjwt.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -32,10 +36,33 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         final String authorizationHeader = request.getHeader("Authorization");
 
-        String username = null;
-        String jwtToken = null;
+        if(authorizationHeader == null || !authorizationHeader.startsWith("Bearer")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-        if(authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
+        // If there is no token provided and hence the user won't be authenticated.
+        // It's Ok. Maybe the user accessing a public path or asking for a token.
+
+        // All secured paths that need a token are already defined and secured in config class.
+        // And If user tried to access without access token, then he won't be authenticated and an exception will be thrown.
+
+        String jwtToken = authorizationHeader.substring(7);
+
+        try {
+            Claims claims = jwtUtil.validateToken(jwtToken);
+            String username = claims.getSubject();
+            if(username != null) {
+                //List<String> authorities = (List<String>) claims.get("authorities");  //use this when you apply priorities
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                        new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+        } catch(Exception e) {  //elaborate with specific exceptions
+            SecurityContextHolder.clearContext();
+        }
+
+        /*if(authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
             jwtToken = authorizationHeader.substring(7);
             username = jwtUtil.extractUsername(jwtToken);
         }
@@ -50,7 +77,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);  //most important statement
             }
-        }
+        }*/
         chain.doFilter(request, response);
     }
 }

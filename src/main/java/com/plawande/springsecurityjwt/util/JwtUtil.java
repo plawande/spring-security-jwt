@@ -16,7 +16,7 @@ public class JwtUtil {
 
     private final String SECRET_KEY = "secret";
 
-    public String extractUsername(String token) {
+    /*public String extractUsername(String token) {
         return extractClaim(token, claims -> claims.getSubject());
     }
 
@@ -44,6 +44,11 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.getExpiration()).before(new Date());
     }
 
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }*/
+
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
@@ -59,8 +64,10 @@ public class JwtUtil {
                 .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Claims validateToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
