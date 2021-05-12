@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
@@ -22,6 +23,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
+
+    @Autowired
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,6 +43,8 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/private").hasAnyRole("ADMIN", "USER")  //any specific endpoint needs to be protected first
                 .antMatchers("/user/**").permitAll()  //and later on do the generic
                 .anyRequest().authenticated()
+                .and()
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);  //making session management stateless since we're using JWT.
 

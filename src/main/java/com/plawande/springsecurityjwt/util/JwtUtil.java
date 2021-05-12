@@ -18,39 +18,6 @@ public class JwtUtil {
 
     private final String SECRET_KEY = "secret";
 
-    /*public String extractUsername(String token) {
-        return extractClaim(token, claims -> claims.getSubject());
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, claims -> claims.getExpiration());
-    }
-
-    public String extractFirstName(String token) {
-        return extractClaim(token, claims -> claims.get("firstName", String.class));
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimResolver.apply(claims);  //whatever is passed to the apply f'n, serves as an i/p to the claimResolver Function.
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    public Boolean isTokenExpired(String token) {
-        return extractClaim(token, claims -> claims.getExpiration()).before(new Date());
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }*/
-
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
