@@ -27,11 +27,6 @@ public class AuthenticationResource {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello world!";
-    }
-
     @PostMapping(value = "/authenticate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createAuthenticationToken(
             @RequestBody AuthenticationRequest authenticationRequest) throws Exception {

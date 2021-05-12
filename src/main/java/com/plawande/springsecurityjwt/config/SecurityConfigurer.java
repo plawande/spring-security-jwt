@@ -33,6 +33,11 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/authenticate").permitAll()
+                .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers("/user").hasAnyRole("ADMIN", "USER")
+                //.antMatchers("/user/**").permitAll()
+                .antMatchers("/user/private").hasAnyRole("ADMIN", "USER")  //any specific endpoint needs to be protected first
+                .antMatchers("/user/**").permitAll()  //and later on do the generic
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);  //making session management stateless since we're using JWT.
