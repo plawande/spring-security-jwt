@@ -71,3 +71,5 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 }
+
+//https://medium.com/fullstackblog/spring-security-jwt-token-expired-custom-response-b85437914b81
