@@ -1,7 +1,9 @@
 package com.plawande.springsecurityjwt.config;
 
 import com.plawande.springsecurityjwt.filter.JwtRequestFilter;
+import com.plawande.springsecurityjwt.filter.JwtUsernamePasswordAuthenticationFilter;
 import com.plawande.springsecurityjwt.service.MyUserDetailsService;
+import com.plawande.springsecurityjwt.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailsService);
@@ -43,7 +48,6 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .antMatchers("/authenticate").permitAll()
                 .antMatchers("/admin").hasRole("ADMIN")
                 .antMatchers("/user").hasAnyRole("ADMIN", "USER")
-                //.antMatchers("/user/**").permitAll()
                 .antMatchers("/user/private").hasAnyRole("ADMIN", "USER")  //any specific endpoint needs to be protected first
                 .antMatchers("/user/**").permitAll()  //and later on do the generic
                 .anyRequest().authenticated()
@@ -54,6 +58,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);  //making session management stateless since we're using JWT.
 
+        http.addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManagerBean(), myUserDetailsService, jwtUtil));
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
